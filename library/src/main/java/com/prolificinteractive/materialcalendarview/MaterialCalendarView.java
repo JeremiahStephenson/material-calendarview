@@ -9,12 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ArrayRes;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -27,22 +21,16 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.prolificinteractive.materialcalendarview.format.ArrayWeekDayFormatter;
-import com.prolificinteractive.materialcalendarview.format.DayFormatter;
-import com.prolificinteractive.materialcalendarview.format.MonthArrayTitleFormatter;
-import com.prolificinteractive.materialcalendarview.format.TitleFormatter;
-import com.prolificinteractive.materialcalendarview.format.WeekDayFormatter;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import androidx.annotation.*;
+import androidx.viewpager.widget.ViewPager;
+import com.prolificinteractive.materialcalendarview.format.*;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.WeekFields;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.*;
 
 /**
  * <p>
@@ -764,7 +752,8 @@ public class MaterialCalendarView extends ViewGroup {
    * will return the last date of the list of selected dates.
    * @see MaterialCalendarView#getSelectedDates()
    */
-  @Nullable public CalendarDay getSelectedDate() {
+  @Nullable
+  public CalendarDay getSelectedDate() {
     List<CalendarDay> dates = adapter.getSelectedDates();
     if (dates.isEmpty()) {
       return null;
@@ -1619,7 +1608,7 @@ public class MaterialCalendarView extends ViewGroup {
     setMeasuredDimension(
         //We clamp inline because we want to use un-clamped versions on the children
         clampSize(measuredWidth, widthMeasureSpec),
-        clampSize(measuredHeight, heightMeasureSpec)
+        clampSize(measuredHeight - (measureTileHeight / 2), heightMeasureSpec)
     );
 
     int count = getChildCount();
@@ -1635,8 +1624,8 @@ public class MaterialCalendarView extends ViewGroup {
       );
 
       int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-          p.height * measureTileHeight,
-          MeasureSpec.EXACTLY
+              (p.height * measureTileHeight) - (measureTileHeight / 2),
+              MeasureSpec.EXACTLY
       );
 
       child.measure(childWidthMeasureSpec, childHeightMeasureSpec);

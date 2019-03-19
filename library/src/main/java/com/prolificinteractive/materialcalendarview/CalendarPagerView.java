@@ -1,22 +1,24 @@
 package com.prolificinteractive.materialcalendarview;
 
+import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import androidx.annotation.NonNull;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView.ShowOtherDates;
 import com.prolificinteractive.materialcalendarview.format.DayFormatter;
 import com.prolificinteractive.materialcalendarview.format.WeekDayFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.TemporalField;
 import org.threeten.bp.temporal.WeekFields;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.SHOW_DEFAULTS;
 import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.showOtherMonths;
@@ -29,7 +31,7 @@ abstract class CalendarPagerView extends ViewGroup
   protected static final int DAY_NAMES_ROW = 1;
 
   private final ArrayList<WeekDayView> weekDayViews = new ArrayList<>();
-  private final ArrayList<DecoratorResult> decoratorResults = new ArrayList<>();
+  private final ArrayList<DayViewDecorator> decoratorResults = new ArrayList<>();
   private final DayOfWeek firstDayOfWeek;
   @ShowOtherDates protected int showOtherDates = SHOW_DEFAULTS;
   private MaterialCalendarView mcv;
@@ -104,7 +106,7 @@ abstract class CalendarPagerView extends ViewGroup
 
   protected abstract boolean isDayEnabled(CalendarDay day);
 
-  void setDayViewDecorators(List<DecoratorResult> results) {
+  void setDayViewDecorators(List<DayViewDecorator> results) {
     this.decoratorResults.clear();
     if (results != null) {
       this.decoratorResults.addAll(results);
@@ -190,9 +192,9 @@ abstract class CalendarPagerView extends ViewGroup
     final DayViewFacade facadeAccumulator = new DayViewFacade();
     for (DayView dayView : dayViews) {
       facadeAccumulator.reset();
-      for (DecoratorResult result : decoratorResults) {
-        if (result.decorator.shouldDecorate(dayView.getDate())) {
-          result.result.applyTo(facadeAccumulator);
+      for (DayViewDecorator result : decoratorResults) {
+        if (result.shouldDecorate(dayView.getDate())) {
+          result.decorate(facadeAccumulator, dayView.getDate());
         }
       }
       dayView.applyFacade(facadeAccumulator);
@@ -245,8 +247,10 @@ abstract class CalendarPagerView extends ViewGroup
     }
 
     //The spec width should be a correct multiple
+    final int rows = getRows();
     final int measureTileWidth = specWidthSize / DEFAULT_DAYS_IN_WEEK;
-    final int measureTileHeight = specHeightSize / getRows();
+    final int weekMeasureTileHeight = (specHeightSize / rows) / 2;
+    final int measureTileHeight = ((specHeightSize - weekMeasureTileHeight) / (rows - 1));
 
     //Just use the spec sizes
     setMeasuredDimension(specWidthSize, specHeightSize);
@@ -261,12 +265,19 @@ abstract class CalendarPagerView extends ViewGroup
           MeasureSpec.EXACTLY
       );
 
+      int height;
+        if (child instanceof WeekDayView) {
+            height = weekMeasureTileHeight;
+        } else {
+            height = measureTileHeight;
+        }
+
       int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-          measureTileHeight,
+          height,
           MeasureSpec.EXACTLY
       );
 
-      child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
     }
   }
 

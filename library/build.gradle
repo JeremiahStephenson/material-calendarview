@@ -1,19 +1,31 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
-apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.github.dcendents.android-maven'
 
 android {
-  compileSdkVersion rootProject.ext.compileSdkVersion
+  compileSdkVersion 28
 
   defaultConfig {
-    minSdkVersion rootProject.ext.minSdkVersion
-    targetSdkVersion rootProject.ext.targetSdkVersion
+    minSdkVersion rootProject.ext.minSdk
+    targetSdkVersion rootProject.ext.targetSdk
 
-    versionCode Integer.parseInt(project.VERSION_CODE)
-    versionName project.VERSION_NAME
+    versionCode 19
+    versionName "2.0.1"
 
     vectorDrawables.useSupportLibrary = true
   }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        beta {
+
+        }
+        debug {
+
+        }
+    }
 
   lintOptions {
     abortOnError false
@@ -30,13 +42,14 @@ version = android.defaultConfig.versionName
 archivesBaseName = 'material-calendarview'
 
 dependencies {
-  implementation rootProject.ext.threeTenAbp
-  implementation rootProject.ext.supportV4
-  implementation rootProject.ext.supportAppCompat
-  implementation rootProject.ext.supportAnnotations
 
-  rootProject.ext.testDep.each { testImplementation it }
-  rootProject.ext.androidTestDep.each { androidTestImplementation it }
+    implementation "com.jakewharton.threetenabp:threetenabp:$threetenAbpVersion"
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
+    implementation "androidx.annotation:annotation:1.0.2"
+    implementation "androidx.appcompat:appcompat:1.0.2"
+
+  //rootProject.ext.testDep.each { testImplementation it }
+  //rootProject.ext.androidTestDep.each { androidTestImplementation it }
 }
 
 tasks.withType(Javadoc) {
