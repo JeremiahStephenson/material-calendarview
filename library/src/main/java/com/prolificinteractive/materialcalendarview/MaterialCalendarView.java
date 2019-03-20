@@ -1608,7 +1608,7 @@ public class MaterialCalendarView extends ViewGroup {
     setMeasuredDimension(
         //We clamp inline because we want to use un-clamped versions on the children
         clampSize(measuredWidth, widthMeasureSpec),
-        clampSize(measuredHeight - (measureTileHeight / 2), heightMeasureSpec)
+        clampSize(measuredHeight - (measureTileHeight / 3), heightMeasureSpec)
     );
 
     int count = getChildCount();
@@ -1624,7 +1624,7 @@ public class MaterialCalendarView extends ViewGroup {
       );
 
       int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-              (p.height * measureTileHeight) - (measureTileHeight / 2),
+              (p.height * measureTileHeight) - (measureTileHeight / 3),
               MeasureSpec.EXACTLY
       );
 
