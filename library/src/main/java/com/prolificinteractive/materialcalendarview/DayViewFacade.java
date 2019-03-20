@@ -15,6 +15,7 @@ public class DayViewFacade {
 
   private Drawable backgroundDrawable = null;
   private Drawable selectionDrawable = null;
+  private Boolean useDefaultBounds = false;
   private final LinkedList<Span> spans = new LinkedList<>();
   private boolean daysDisabled = false;
 
@@ -41,13 +42,18 @@ public class DayViewFacade {
    *
    * @param drawable the drawable for selection
    */
-  public void setSelectionDrawable(@NonNull Drawable drawable) {
+  public void setSelectionDrawable(@NonNull Drawable drawable, Boolean useDefaultBounds) {
     if (drawable == null) {
       throw new IllegalArgumentException("Cannot be null");
     }
     selectionDrawable = drawable;
+    this.useDefaultBounds = useDefaultBounds;
     isDecorated = true;
   }
+
+    public void setSelectionDrawable(@NonNull Drawable drawable) {
+      setSelectionDrawable(drawable, false);
+    }
 
   /**
    * Add a span to the entire text of a day
@@ -88,7 +94,7 @@ public class DayViewFacade {
    */
   void applyTo(DayViewFacade other) {
     if (selectionDrawable != null) {
-      other.setSelectionDrawable(selectionDrawable);
+      other.setSelectionDrawable(selectionDrawable, useDefaultBounds);
     }
     if (backgroundDrawable != null) {
       other.setBackgroundDrawable(backgroundDrawable);
@@ -105,6 +111,8 @@ public class DayViewFacade {
   Drawable getSelectionDrawable() {
     return selectionDrawable;
   }
+
+  Boolean getUseDefaultBounds() { return useDefaultBounds; }
 
   Drawable getBackgroundDrawable() {
     return backgroundDrawable;

@@ -37,6 +37,7 @@ import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.
   private final int fadeTime;
   private Drawable customBackground = null;
   private Drawable selectionDrawable;
+  private Boolean useDefaultBounds = false;
   private Drawable mCircleDrawable;
   private DayFormatter formatter = DayFormatter.DEFAULT;
   private DayFormatter contentDescriptionFormatter = formatter;
@@ -120,11 +121,13 @@ import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.
   /**
    * @param drawable custom selection drawable
    */
-  public void setSelectionDrawable(Drawable drawable) {
+  public void setSelectionDrawable(Drawable drawable, Boolean useDefaultBounds) {
     if (drawable == null) {
       this.selectionDrawable = null;
+      this.useDefaultBounds = false;
     } else {
       this.selectionDrawable = drawable.getConstantState().newDrawable(getResources());
+      this.useDefaultBounds = useDefaultBounds;
     }
     regenerateBackground();
   }
@@ -201,25 +204,33 @@ import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.
   }
 
   private void regenerateBackground() {
-    if (selectionDrawable != null) {
-      setBackgroundDrawable(selectionDrawable);
+    if (selectionDrawable != null && !useDefaultBounds) {
+      setBackground(selectionDrawable);
     } else {
-      mCircleDrawable = generateBackground(selectionColor, fadeTime, circleDrawableRect);
-      setBackgroundDrawable(mCircleDrawable);
+      mCircleDrawable = generateBackground(selectionColor, fadeTime, circleDrawableRect, selectionDrawable);
+      setBackground(mCircleDrawable);
     }
   }
 
-  private static Drawable generateBackground(int color, int fadeTime, Rect bounds) {
+  private static Drawable generateBackground(int color, int fadeTime, Rect bounds, Drawable selectionDrawable) {
     StateListDrawable drawable = new StateListDrawable();
     drawable.setExitFadeDuration(fadeTime);
-    drawable.addState(new int[] { android.R.attr.state_checked }, generateCircleDrawable(color));
+    //drawable.addState(new int[] { android.R.attr.state_checked }, generateCircleDrawable(color));
+
+      if (selectionDrawable != null) {
+          drawable.addState(new int[] { android.R.attr.state_checked }, selectionDrawable);
+      } else {
+          drawable.addState(new int[]{android.R.attr.state_checked }, generateCircleDrawable(color));
+      }
+
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       drawable.addState(
           new int[] { android.R.attr.state_pressed },
           generateRippleDrawable(color, bounds)
       );
     } else {
-      drawable.addState(new int[] { android.R.attr.state_pressed }, generateCircleDrawable(color));
+        drawable.addState(new int[]{android.R.attr.state_pressed}, generateCircleDrawable(color));
     }
 
     drawable.addState(new int[] { }, generateCircleDrawable(Color.TRANSPARENT));
@@ -260,7 +271,7 @@ import static com.prolificinteractive.materialcalendarview.MaterialCalendarView.
     setEnabled();
 
     setCustomBackground(facade.getBackgroundDrawable());
-    setSelectionDrawable(facade.getSelectionDrawable());
+    setSelectionDrawable(facade.getSelectionDrawable(), facade.getUseDefaultBounds());
 
     // Facade has spans
     List<DayViewFacade.Span> spans = facade.getSpans();
